@@ -1,5 +1,6 @@
 $(function() {
   // Button will be disabled until we type anything inside the input field
+  const my_api_key = '9e7e8763d8a867d76e3180aa764b5e65';
   const source = document.getElementById('autoComplete');
   const inputHandler = function(e) {
     if(e.target.value==""){
@@ -12,7 +13,6 @@ $(function() {
   source.addEventListener('input', inputHandler);
 
   $('.movie-button').on('click',function(){
-    var my_api_key = '9e7e8763d8a867d76e3180aa764b5e65';
     var title = $('.movie').val();
     if (title=="") {
       $('.results').css('display','none');
