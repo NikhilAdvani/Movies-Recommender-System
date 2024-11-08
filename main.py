@@ -134,15 +134,16 @@ def recommend():
 
     sauce = urllib.request.urlopen(req).read()
     soup = bs.BeautifulSoup(sauce, 'lxml')
-    soup_result = soup.find_all("h3", {"class": "ipc-title__text"})
+    soup_result = soup.find_all("div", {"class": "ipc-overflowText"})
   
 
     reviews_list = [] # list of reviews
     reviews_status = [] # list of comments (good or bad)
     for review in soup_result:
-        review_text = review.get_text().strip()  # Extract and clean up text content
-        if isinstance(review_text, str) and review_text:  # Check if it's a non-empty string
-            reviews_list.append(review_text)
+        title = review.find_previous("h3", {"class": "ipc-title__text"}).get_text(strip=True)
+        review_text = review.find("div", {"class": "ipc-html-content-inner-div"}).get_text(separator="\n", strip=True)
+        if isinstance(title, str) and isinstance(review_text, str)  # Check if it's a string
+            reviews_list.append(f"{title}\n{review_text}")
             # passing the review to our model
             movie_review_list = np.array([review_text])
             movie_vector = vectorizer.transform(movie_review_list)
