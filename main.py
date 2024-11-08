@@ -142,7 +142,7 @@ def recommend():
     for review in soup_result:
         title = review.find_previous("h3", {"class": "ipc-title__text"}).get_text(strip=True)
         review_text = review.find("div", {"class": "ipc-html-content-inner-div"}).get_text(separator="\n", strip=True)
-        if isinstance(title, str) and isinstance(review_text, str)  # Check if it's a string
+        if isinstance(title, str) and isinstance(review_text, str):  # Check if it's a string
             reviews_list.append(f"{title}\n{review_text}")
             # passing the review to our model
             movie_review_list = np.array([review_text])
