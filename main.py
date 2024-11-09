@@ -8,7 +8,7 @@ import bs4 as bs
 import urllib.request
 import pickle
 import requests
-from functools import lru_cache
+
 
 app = Flask(__name__)
 
@@ -20,7 +20,7 @@ vectorizer = pickle.load(open('tranform.pkl','rb'))
 data = None
 similarity = None
 
-@lru_cache(maxsize=1)
+
 def create_similarity():
     global data, similarity
     if data is None or similarity is None:  # Load only if not loaded already
