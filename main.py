@@ -8,12 +8,14 @@ import bs4 as bs
 import urllib.request
 import pickle
 import requests
+from functools import lru_cache
 
 # load the nlp model and tfidf vectorizer from disk
 filename = 'nlp_model.pkl'
 clf = pickle.load(open(filename, 'rb'))  # classification model for sentiment analysis
 vectorizer = pickle.load(open('tranform.pkl','rb'))
 
+@lru_cache(maxsize=1)
 def create_similarity():
     data = pd.read_csv('main_data.csv')
     # creating a count matrix
@@ -46,15 +48,16 @@ def rcmd(m):
 # converting list of string to list (eg. "["abc","def"]" to ["abc","def"])
 
 def convert_to_list(my_list):
-    my_list = my_list.split('","')
-    my_list[0] = my_list[0].replace('["','')
-    my_list[-1] = my_list[-1].replace('"]','')
-    return my_list
+    # my_list = my_list.split('","')
+    # my_list[0] = my_list[0].replace('["','')
+    # my_list[-1] = my_list[-1].replace('"]','')
+    # return my_list
+    return [item.strip('["]').replace('\\"', '"') for item in my_list.split('","')]
 
 
 # to get suggestions of movies
 def get_suggestions():
-    data = pd.read_csv('main_data.csv')
+    data = pd.read_csv('main_data.csv', usecols=['movie_title'])
     return list(data['movie_title'].str.capitalize())
 
 # Flask API
@@ -123,7 +126,8 @@ def recommend():
         cast_bios[i] = cast_bios[i].replace(r'\n', '\n').replace(r'\"','\"')
     
     # combining multiple lists as a dictionary which can be passed to the html file so that it can be processed easily and the order of information will be preserved
-    movie_cards = {rec_posters[i]: rec_movies[i] for i in range(len(rec_posters))}
+    # movie_cards = {rec_posters[i]: rec_movies[i] for i in range(len(rec_posters))}
+    movie_cards = {poster: movie for poster, movie in zip(rec_posters, rec_movies)}
 
     casts = {cast_names[i]:[cast_ids[i], cast_chars[i], cast_profiles[i]] for i in range(len(cast_profiles))}
 
@@ -134,7 +138,7 @@ def recommend():
 
     sauce = urllib.request.urlopen(req).read()
     soup = bs.BeautifulSoup(sauce, 'lxml')
-    soup_result = soup.find_all("div", {"class": "ipc-overflowText"})
+    soup_result = soup.find_all("div", {"class": "ipc-overflowText"}, limit=6)
   
 
     reviews_list = [] # list of reviews
