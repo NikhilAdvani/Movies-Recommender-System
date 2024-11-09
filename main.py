@@ -8,7 +8,7 @@ import bs4 as bs
 import urllib.request
 import pickle
 import requests
-
+from scipy.sparse import csr_matrix
 
 app = Flask(__name__)
 
@@ -29,7 +29,8 @@ def create_similarity():
         cv = CountVectorizer()
         count_matrix = cv.fit_transform(data['col_merge'])
         # creating a similarity score matrix
-        similarity = cosine_similarity(count_matrix)
+        # similarity = cosine_similarity(count_matrix)
+        similarity = csr_matrix(cosine_similarity(count_matrix))
     return data, similarity
 
 recommendation_cache = {}
