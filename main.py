@@ -10,6 +10,8 @@ import pickle
 import requests
 from functools import lru_cache
 
+app = Flask(__name__)
+
 # load the nlp model and tfidf vectorizer from disk
 filename = 'nlp_model.pkl'
 clf = pickle.load(open(filename, 'rb'))  # classification model for sentiment analysis
@@ -62,7 +64,7 @@ def get_suggestions():
 
 # Flask API
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
 @app.route("/")
 @app.route("/home")
