@@ -17,30 +17,40 @@ filename = 'nlp_model.pkl'
 clf = pickle.load(open(filename, 'rb'))  # classification model for sentiment analysis
 vectorizer = pickle.load(open('tranform.pkl','rb'))
 
-data = None
-similarity = None
+class DataLoader:
+    _instance = None
+    data = None
+    similarity = None
+
+    @classmethod
+    def create_similarity(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+            cls.data = pd.read_csv('main_data.csv')
+            cv = CountVectorizer()
+            count_matrix = cv.fit_transform(cls.data['col_merge'])
+            cls.similarity = cosine_similarity(count_matrix)
+        return cls.data, cls.similarity
+        # global data, similarity
+        # if data is None or similarity is None:  # Load only if not loaded already
+        #     data = pd.read_csv('main_data.csv')
+        #     # creating a count matrix
+        #     cv = CountVectorizer()
+        #     count_matrix = cv.fit_transform(data['col_merge'])
+        #     # creating a similarity score matrix
+        #     # similarity = cosine_similarity(count_matrix)
+        #     similarity = csr_matrix(cosine_similarity(count_matrix))
+        # return data, similarity
 
 
-def create_similarity():
-    global data, similarity
-    if data is None or similarity is None:  # Load only if not loaded already
-        data = pd.read_csv('main_data.csv')
-        # creating a count matrix
-        cv = CountVectorizer()
-        count_matrix = cv.fit_transform(data['col_merge'])
-        # creating a similarity score matrix
-        # similarity = cosine_similarity(count_matrix)
-        similarity = csr_matrix(cosine_similarity(count_matrix))
-    return data, similarity
-
-recommendation_cache = {}
 def rcmd(m):
     m = m.lower()
     try:
         data.head()
         similarity.shape
     except:
-        data, similarity = create_similarity()
+        # data, similarity = create_similarity()
+        data, similarity = DataLoader.create_similarity()
     if m not in data['movie_title'].unique():
         return("Sorry! The movie you requested is not in our database. Please check the spelling or try some other movie name") 
     else:
