@@ -17,16 +17,22 @@ filename = 'nlp_model.pkl'
 clf = pickle.load(open(filename, 'rb'))  # classification model for sentiment analysis
 vectorizer = pickle.load(open('tranform.pkl','rb'))
 
+data = None
+similarity = None
+
 @lru_cache(maxsize=1)
 def create_similarity():
-    data = pd.read_csv('main_data.csv')
-    # creating a count matrix
-    cv = CountVectorizer()
-    count_matrix = cv.fit_transform(data['col_merge'])
-    # creating a similarity score matrix
-    similarity = cosine_similarity(count_matrix)
+    global data, similarity
+    if data is None or similarity is None:  # Load only if not loaded already
+        data = pd.read_csv('main_data.csv')
+        # creating a count matrix
+        cv = CountVectorizer()
+        count_matrix = cv.fit_transform(data['col_merge'])
+        # creating a similarity score matrix
+        similarity = cosine_similarity(count_matrix)
     return data, similarity
 
+recommendation_cache = {}
 def rcmd(m):
     m = m.lower()
     try:
@@ -46,9 +52,9 @@ def rcmd(m):
             a = lst[i][0]
             l.append(data['movie_title'][a])
         return l
-    
-# converting list of string to list (eg. "["abc","def"]" to ["abc","def"])
 
+
+# converting list of string to list (eg. "["abc","def"]" to ["abc","def"])
 def convert_to_list(my_list):
     # my_list = my_list.split('","')
     # my_list[0] = my_list[0].replace('["','')
